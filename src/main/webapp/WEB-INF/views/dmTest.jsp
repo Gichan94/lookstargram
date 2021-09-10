@@ -86,7 +86,7 @@
 			}); //ajax문
 
 
-			//채팅리스트 보여주는 ajax
+	/*		//채팅리스트 보여주는 ajax
 			$.ajax({
 				url:"/listPeople.do",
 				dataType:"json",
@@ -127,7 +127,7 @@
 						} //if문
 					};//success문
 				});	 //ajax문
-			
+			*/
 			
 		},10000); //setInterval문	
 	});  //document문
