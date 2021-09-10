@@ -5,7 +5,7 @@
 <head>
 <meta http-equib="Content-Type" content="text/html; charset=UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link rel="stylesheet" type="text/css" href="/resources/css/Chat.css"/>
+<link rel="stylesheet" type="text/css" href="/resources/Chat.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <title>채팅채팅</title>
 </head>

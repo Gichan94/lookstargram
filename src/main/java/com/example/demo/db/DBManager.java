@@ -11,7 +11,11 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import com.example.demo.vo.BoardVO;
 import com.example.demo.vo.ChatVO;
+import com.example.demo.vo.DMVO;
+import com.example.demo.vo.InsertLookbookCommandVO;
+import com.example.demo.vo.LookInfoVO;
 import com.example.demo.vo.LookbookVO;
+import com.example.demo.vo.Lookbook_styleVO;
 import com.example.demo.vo.UsersVO;
 
 public class DBManager {
@@ -76,33 +80,92 @@ public class DBManager {
 		return u;
 	}
 
+	
+	//가연
+	public static UsersVO getUsersByNickname(String users_nickname) {
+		SqlSession session = factory.openSession();
+		UsersVO u = session.selectOne("users.getUsersByNickname",users_nickname);
+		session.close();
+		return u;
+	}
+	
 	public static List<LookbookVO> listLookbook(String sortField) {
 		SqlSession session = factory.openSession();
 		List<com.example.demo.vo.LookbookVO> list = session.selectList("lookbook.findAll",sortField);
 		session.close();
 		return list;
 	}
-
-	public static int insert(LookbookVO l) {
-		SqlSession session = factory.openSession();
-		int re = session.insert("lookbook.insert",l);
-		session.commit();
-		session.close();
-		return re;
-	}
 	
-	public static int insertDM(ChatVO c) {
+	public static int insertLookbook(InsertLookbookCommandVO insertlook) {
+		int re = 0;
 		SqlSession session = factory.openSession(true);
-		int re = session.insert("chat.insertDM",c);
+		int r = session.selectOne("lookinfo.getNext_lookbook_no");
+		System.out.println("--------------------------");
+		System.out.println("새로운 lookbook_no:" + r);
+		LookbookVO lookbook =  insertlook.getLookbook();
+		lookbook.setLookbook_no(r);
+		System.out.println("loobook객체: "+ lookbook);
+		int re1 = session.insert("lookbook.insert",lookbook); // 1 
+		
+		List<LookInfoVO> list = insertlook.getList_info();
+		int re2 = 0;
+		for(LookInfoVO l : list) {
+			l.setLookbook_no(r);	
+			System.out.println("lookinfo 객체:"+ l);
+			re2 += session.insert("lookinfo.insert", l);
+		}	// list 사이즈
+		
+		
+		List<Integer> list2 =  insertlook.getStyle_no();
+		int re3 = 0;
+		for(int i : list2) {
+			Lookbook_styleVO style = new Lookbook_styleVO(r, i);
+			System.out.println("lookbook_style 객체:"+ style);
+			re3 += session.insert("lookbook_style.insert", style);
+		}	// list2 사이즈
+		
+		//int re2 = session.insert("lookinfo.insert",insertlook.getList_info());
+		//int re1 = session.insert("lookbook_style.insert",insertlook.getStyle_no());
+
+		if(re1== 1&& re2 == list.size() && re3 == list2.size()) {
+			session.commit();
+		}else {
+			session.rollback();
+		}
+		session.close();
+		System.out.println("--------------------------");
+		return re;
+	}
+	
+	
+	public static int insertDM(DMVO d) {
+		SqlSession session = factory.openSession(true);
+		int re = session.insert("dm.insertDM",d);
 		session.close();
 		return re;
 	}
 	
-	public static List<ChatVO> listDM(String from_id) {
+	public static List<DMVO> listPeople(String users_nickname){
 		SqlSession session = factory.openSession();
-		List<ChatVO> c = session.selectList("chat.listDM",from_id);
+		List<DMVO> list = session.selectList("dm.findAll",users_nickname);
 		session.close();
-		return c;
+		return list;
+		
+	}
+	
+	public static List<DMVO> listDM(String users_nickname){
+		SqlSession session = factory.openSession();
+		List<DMVO> dmList = session.selectList("dm.findAll2",users_nickname);
+		session.close();
+		return dmList;
+		
+	}
+	
+	public static DMVO getDM(int dm_no) {
+		SqlSession session = factory.openSession();
+		DMVO d = session.selectOne("dm.getDM",dm_no);
+		session.close();
+		return d;
 	}
 	//board 관련 DBManager
 	
