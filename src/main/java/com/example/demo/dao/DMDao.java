@@ -1,3 +1,4 @@
+  
 package com.example.demo.dao;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class DMDao {
 		return DBManager.listDM(users_nickname);
 	}
 	
-	
+
 	public DMVO getDM(int dm_no) {
 		return DBManager.getDM(dm_no);
 	}

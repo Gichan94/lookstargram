@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import java.util.List;
 
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ public class DMController {
 		//List<DMVO> list = dao.findAll2(id);
 		//System.out.println("list: "+list);
 		//mav.addObject("dmList",list);
+
 	}
 
 }

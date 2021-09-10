@@ -84,8 +84,6 @@
 				}//success문
 				
 			}); //ajax문
-
-
 	/*		//채팅리스트 보여주는 ajax
 			$.ajax({
 				url:"/listPeople.do",
@@ -132,7 +130,6 @@
 		},10000); //setInterval문	
 	});  //document문
 	
-
 </script>
 </head>
 
@@ -216,4 +213,3 @@
 
 </body>
 </html>
-

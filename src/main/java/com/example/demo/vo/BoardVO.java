@@ -110,8 +110,4 @@ public class BoardVO {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	
-	
-	
-	
 }
