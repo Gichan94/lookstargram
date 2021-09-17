@@ -1,6 +1,7 @@
 package com.example.demo.db;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -447,10 +448,84 @@ public class DBManager {
 	         return re;
 	      }
 
+
 	   
-	 //dbmanager/db
-		//가연
-		public static UsersVO getUsersByNickname(String users_nickname) {
+	   
+	   //dbmanager/DM
+	   //가연
+	   
+	   //dmList: dm목록
+	   public static List<DMVO> dmList(DMVO d){
+		   SqlSession session = factory.openSession(true);		   
+		   
+		   //list = 보낸사람 Nickname, 보낸사람 profile, 가장 최근메세지
+		   List<DMVO> list = session.selectList("dm.dmList", d);
+		   		
+			for (DMVO dmvo : list) {
+				dmvo.setMy_nickname(d.getFrom_nickname());
+				// count_unread ->unread: 내가 각 방마다 안읽은 DM 수 갖고오기
+				int unread = session.selectOne("dm.notReadDM", dmvo);				
+				// get_your_profile -> profile: 각 방의 상대방 프로필 갖고오기
+				String profile = session.selectOne("dm.getProfile",dmvo);
+				// unread(=안읽은 디엠 수) DMVO에 set
+				dmvo.setUnread(unread);
+				// profile(=상대방 프로필) DMVO에 set
+				dmvo.setYour_profile(profile);
+				//from_nickname=my_nickname => to_nickname=your_nickname
+				if (dmvo.getMy_nickname().equals(dmvo.getFrom_nickname())) {
+					dmvo.setYour_nickname(dmvo.getTo_nickname());
+				} else {
+					dmvo.setYour_nickname(dmvo.getFrom_nickname());
+				}
+			}
+		   session.close();
+		   return list;
+	   }
+	   
+	   
+		//roomContentList: room_no마다 dm(dm_content)가져오기
+		public static List<DMVO> getContentList(DMVO d) {
+			SqlSession session = factory.openSession();
+			
+			//콘솔에 출력해보기
+			System.out.println("room 번호: " + d.getRoom_no());
+			System.out.println("from_nickname: " + d.getFrom_nickname());
+			System.out.println("to_nickname: " + d.getTo_nickname());
+						
+			// room_content_list: room별 dm메세지 내용 목록
+			List<DMVO> list = session.selectList("dm.getContentList", d);
+
+			// dm_read_chk: dm 연결하고있는 from_nickname의 메세지를 모두 읽음 처리
+			session.update("dm.readDM", d);
+
+			return list;
+		}
+	   
+	   
+	   
+		// dmList에서 dm보내기
+		public static int insertDM(DMVO d) {
+			SqlSession session = factory.openSession();
+			
+			// 메세지리스트에서 보낸건지 프로필에서 보낸건지 구분하기 위함
+			if(d.getRoom_no() == 0) {	// room이 0이라면 프로필에서 보낸거다
+				int oldDM = session.selectOne("dm.findOldDM", d);
+				// 프로필에서 보낸것중 메세지 내역이없어서 첫메세지가 될경우를 구분하기 위함
+				if(oldDM == 0) {	// 메세지 내역이 없어서 0이면 message 테이블의 room 최댓값을 구해서 to에 set 한다.
+					int maxRoomNumber = session.selectOne("dm.findMaxRoomNumber", d);
+					d.setRoom_no(maxRoomNumber+1);
+				}else {		// 메세지 내역이 있다면 해당 room 번호를 가져온다.
+					int room_no = Integer.parseInt(session.selectOne("dm.findRoomNumber", d));
+					d.setRoom_no(room_no);
+				}
+			}	
+			int re = session.insert("dm.insertDM",d);
+			return re;
+		}
+		
+		
+	   
+	/*	public static UsersVO getUsersByNickname(String users_nickname) {
 			SqlSession session = factory.openSession();
 			UsersVO u = session.selectOne("users.getUsersByNickname",users_nickname);
 			session.close();
@@ -486,6 +561,6 @@ public class DBManager {
 			session.close();
 			return d;
 		}
-
+	*/
 
 	}
