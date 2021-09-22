@@ -51,6 +51,7 @@ public class UsersController {
 		
 	}
 	
+
 	
 	@RequestMapping("/users/findOK.do")
 	public void findOK() {
@@ -58,12 +59,7 @@ public class UsersController {
 	}
 	@RequestMapping("/main.do")
 	public void main(HttpSession session) {
-		Authentication authentication
-		= SecurityContextHolder.getContext().getAuthentication();
 		
-		String id = ((User)authentication.getPrincipal()).getUsername();
-		UsersVO u = dao.getUsers(id);
-		session.setAttribute("users", u);
 	}
 	
 	@RequestMapping("/")
