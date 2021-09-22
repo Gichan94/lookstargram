@@ -15,7 +15,7 @@ import com.example.demo.dao.UsersDao;
 import com.example.demo.vo.UsersVO;
 
 @Controller
-@RequestMapping("/users/findID.do")
+@RequestMapping("/findID.do")
 public class FindIDController {
 	@Autowired
 	private JavaMailSender javaMailSender;

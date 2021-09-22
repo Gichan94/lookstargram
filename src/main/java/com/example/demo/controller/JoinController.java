@@ -19,7 +19,7 @@ import com.example.demo.vo.InsertUsersCommandVO;
 import com.example.demo.vo.UsersVO;
 
 @Controller
-@RequestMapping("/users/join.do")
+@RequestMapping("/join.do")
 public class JoinController {
 	@Autowired
 	private UsersDao dao;
