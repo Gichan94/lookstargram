@@ -98,4 +98,21 @@ td {
 	color: red;
 }
 
+#cr_email{
+	display: none;
+}
 
+#users_email2{
+	margin-top: 30px;	
+}
+#mailspan{
+	margin-top: 10px;
+}
+#mailslc{
+	margin-top: 30px;
+	margin-left: 5px;
+}
+#sendCode{
+	margin-top: 30px;
+	margin-left: 10px;
+}

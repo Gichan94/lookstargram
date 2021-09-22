@@ -21,9 +21,10 @@
 	rel="stylesheet" />
 	<!-- Core theme CSS (includes Bootstrap)-->
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5.3/examples/sign-in/">
-    
     <!-- Custom styles for this template -->
     <link href="../resources/css/signin.css" rel="stylesheet">
+    <script type="text/javascript"
+	src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript">
     	window.Kakao.init("2e1f490b7eb0980dbf31d4d83821cf0d");
     	function kakaoLogin() {
@@ -42,10 +43,16 @@
     						console.log(email);
     						console.log(gender);
     						
-    						$("#kakaoprofile").val(profile);
-    						$("#kakaoemail").val(email);
-    						$("#kakaogender").val(gender);
-    						location.href = 'join.do';
+    						//$("#kakaoprofile").val(profile);
+    						//$("#kakaoemail").val(email);
+    						//$("#kakaogender").val(gender);
+    						
+    						document.getElementById('kakaoprofile').value=profile;
+    						document.getElementById('kakaoemail').value=email;
+    						document.getElementById('kakaogender').value=gender;
+    						
+    						document.getElementById('kakaologinF').submit();
+    						//location.href = 'join.do';
     					}
     				});
     			}
@@ -55,7 +62,7 @@
   </head>
 
   <%@ include file="./inc/header.jsp" %>
-
+	
   <body class="text-center">
     <form class="form-signin" name="login_frm" action="login.do" method="post" >
     <input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }">
@@ -64,29 +71,34 @@
   <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
   <div class="checkbox mb-3">
     <label>
+    <!-- 가연: main.do위치변경되면서 회원가입 등등 경로변경 -->
     <span>아직 회원이 아니신가요?</span>
-      <a href="join.do" id="join">회원가입</a> 
+      <a href="./users/join.do" id="join">회원가입</a> 
     </label>
     <label>
-    <span><a href="findID.do">findID</a></span><span>&nbsp;&nbsp;/&nbsp;&nbsp;</span>
-    <span><a href="findPW.do">findPassword</a></span><br>
+    <span><a href="./users/findID.do">findID</a></span><span>&nbsp;&nbsp;/&nbsp;&nbsp;</span>
+    <span><a href="./users/findPW.do">findPassword</a></span><br>
     </label>
   </div>
   <input type="submit" class="btn btn-lg btn-primary btn-block" value="login">
+  </form>
   <br>
+  
+  
+  <form name="kakaologinF" method="get" action="join.do" id="kakaologinF">
   <div class="form-group row" id="kakaologin">
   	<div class="kakaobtn">
+  		<input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }">
   		<input type="hidden" name="kakaoprofile" id="kakaoprofile"/>
   		<input type="hidden" name="kakaoemail" id="kakaoemail"/>
   		<input type="hidden" name="kakaogender" id="kakaogender"/>
-  	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   	<a href="javascript:kakaoLogin();">
   	<img src="https://www.gb.go.kr/Main/Images/ko/member/certi_kakao_login.png" style="height:50px;width:auto"/>
   	</a>
   	</div>
   </div>
   <br>
-  <a href="#"><img src="https://static.nid.naver.com/oauth/big_g.PNG?version=js-2.0.0" style="height:50px;width:auto"/></a>
+  <!--<a href="#"><img src="https://static.nid.naver.com/oauth/big_g.PNG?version=js-2.0.0" style="height:50px;width:auto"/></a>-->
 </form>
 	
 	<!-- Footer-->

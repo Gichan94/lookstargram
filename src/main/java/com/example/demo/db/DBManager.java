@@ -1,7 +1,6 @@
 package com.example.demo.db;
 
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +19,7 @@ import com.example.demo.vo.CommentsVO;
 import com.example.demo.vo.InsertUsersCommandVO;
 import com.example.demo.vo.LookbookVO;
 import com.example.demo.vo.Lookbook_styleVO;
+import com.example.demo.vo.LooklikeVO;
 import com.example.demo.vo.RangeWeightHeightVO;
 import com.example.demo.vo.SelectLookbookCommandVO;
 import com.example.demo.vo.UpdateUsersCommandVO;
@@ -74,6 +74,15 @@ public class DBManager {
 	   }
 	   // 김보민
 
+	   public static int updatePWD(HashMap map) {
+		   int re = -1;
+		   SqlSession session = factory.openSession();
+		   re = session.update("users.updatePwd", map);
+		   session.commit();
+		   session.close();
+		   return re;
+	   }
+	   
 	   // 회원탈퇴시 users테이블 속성 업데이트
 	   public static int updateUsersDel(int users_no) {
 	      SqlSession session = factory.openSession(true);
@@ -81,8 +90,8 @@ public class DBManager {
 	      session.close();
 	      return re;
 	   }
+	   
 	   // 회원탈퇴시 탈퇴테이블에 insert
-
 	   public static int insertUsers_out(Users_outVO uo) {
 	      SqlSession session = factory.openSession(true);
 	      int re = session.insert("users.insertUsers_out", uo);
@@ -125,14 +134,22 @@ public class DBManager {
 
 	      }
 
-	   public static int updateStyle(int users_no) {
-	      System.out.println("dbmanager updatestyle 동작함");
-	      SqlSession session = factory.openSession(true);
-	      int re = session.update("Users_like_Style.updateUsers_like_Style", users_no);
-	      session.close();
-	      return re;
-	   }
+	  public static List<LookbookVO> listLikes(HashMap map){
+		  SqlSession session = factory.openSession();
+		  List<LookbookVO> list = session.selectList("looklike.listLikes",map);
+		  
+		  session.close();
+		  return list;
+	  }
 
+
+	  public static List<UsersVO> listFollw(HashMap map) {
+	      SqlSession session = factory.openSession();
+	      List<UsersVO> flist = session.selectList("follow.listFollow",map);
+	      session.close();
+	      return flist;
+	   }
+	  
 	   public static int updateInfo(UsersVO u) {
 	      SqlSession session = factory.openSession(true);
 	      int re = session.update("look.updateMyInfo", u);
@@ -140,13 +157,69 @@ public class DBManager {
 	      return re;
 	   }
 
-	   public static List<BoardVO> listMyBoard() {
+
+	   public static List<BoardVO> listMyBoard(HashMap map) {
 	      SqlSession session = factory.openSession();
-	      List<BoardVO> list = session.selectList("board.listMyBoard");
+	      List<BoardVO> list = session.selectList("board.listMyBoard",map);
 	      session.close();
 	      return list;
 	   }
-
+	   
+	   public static List<LookbookVO> listMyLook(HashMap map){
+		   
+		   SqlSession session = factory.openSession();
+		   List<LookbookVO> list = session.selectList("lookbook.listMyLook",map);
+		   System.out.println("listMyLookbook:"+list);
+		  // System.out.println("users_no:"+users_no);
+		   session.close();
+		   return list;
+	   }
+	   
+	   public static List<LookbookVO> listFLook(HashMap map) {
+		   System.out.println("map:"+map);
+			SqlSession session = factory.openSession();
+			List<LookbookVO> list = session.selectList("follow.listFLook",map);
+			System.out.println("list:"+list);
+			session.close();
+			return list;
+		}
+	   
+	   public static int getTotalMyLook(int users_no) {
+		   SqlSession session = factory.openSession();
+		   int n = session.selectOne("lookbook.totalMyLook",users_no);
+		   session.close();
+		   return n;
+	   }
+	   
+	   public static int getTotalMyBoard(int users_no) {
+		   SqlSession session = factory.openSession();
+		   int n = session.selectOne("board.totalMyBoard",users_no);
+		   session.close();
+		   return n;
+	   }
+	   
+	   public static int getTotalMyLikes(int users_no) {
+		   SqlSession session = factory.openSession();
+		   int n = session.selectOne("looklike.totalRecord",users_no);
+		   session.close();
+		   return n;
+	   }
+	   
+	   public static int getTotalMyFollow(String users_id) {
+		   SqlSession session = factory.openSession();
+		   int n = session.selectOne("follow.totalRecord",users_id);
+		   session.close();
+		   return n;
+	   }
+	   
+	   public static int getTotalFRecord(int users_no) {
+		   System.out.println("bbb users_no 81 dbmanager:"+users_no);
+			SqlSession session = factory.openSession();
+			int n = session.selectOne("follow.totalFRecord",users_no);
+			session.close();
+			return n;
+	   }
+	   
 	   public static int deleteUser(int users_no, String users_pw) {
 	      SqlSession session = factory.openSession(true);
 	      HashMap map = new HashMap();
@@ -158,7 +231,7 @@ public class DBManager {
 	   }
 
 	   public static UsersVO getUsers(String username) {
-	      SqlSession session = factory.openSession();
+	      SqlSession session = factory.openSession(true);
 	      UsersVO u = session.selectOne("users.getUsers", username);
 	      session.close();
 	      return u;
@@ -172,92 +245,170 @@ public class DBManager {
 	      return u;
 	   }
 
-	   public static List<LookbookVO> listLookbook(HashMap map) {
-	      String[] arr = (String[]) map.get("arr_Style");
-	      System.out.println("Map 정보: " + Arrays.toString(arr));
+	   
+	   
+	   
+	   
+	   
+	   //lookbook
+	   public static List<LookbookVO> listlookbook() {
+			SqlSession session = factory.openSession();
+			List<LookbookVO> list = session.selectList("lookbook.listlookbook");
+			return list;
+		}
 
-	      SqlSession session = factory.openSession();
+		// 필터
+		public static List<LookbookVO> listLookbookFilter(HashMap map) {
 
-	      List<LookbookVO> list = session.selectList("lookbook.findAll", map);
-	      // System.out.println("list: " + list);
-	      for (LookbookVO l : list) {
-	         System.out.println(l.getLookbook_no());
-	      }
-	      session.close();
-	      return list;
-	   }
+			String sortField = (String) map.get("sortField");
+			String[] arr_Style = (String[]) map.get("arr_Style");
+			RangeWeightHeightVO rw = (RangeWeightHeightVO) map.get("rw");
+			int start = (int)map.get("start");
+			int end = (int)map.get("end");
 
-	   // 신체스펙을 통한 lookbooklist
-	   public static List<LookbookVO> listLookbook(RangeWeightHeightVO rw) {
+			System.out.println("Map 정보/ sortField: " + sortField);
+			System.out.println("Map 정보/ arr: " + Arrays.toString(arr_Style));
+			System.out.println("Map 정보/ RangeWH: " + rw);
+			System.out.println("Map 정보/ start: " + start);
+			System.out.println("Map 정보/ end: " + end);
+			
 
-	      System.out.println("신체스펙 정보: " + rw);
+			SqlSession session = factory.openSession();
 
-	      SqlSession session = factory.openSession();
+			List<LookbookVO> list = session.selectList("lookbook.findAllFilter", map);
+			// System.out.println("list: " + list);
+			for (LookbookVO l : list) {
+				System.out.println(l.getLookbook_no());
+			}
+			session.close();
+			return list;
+		}
 
-	      List<LookbookVO> list = session.selectList("lookbook.findRange", rw);
-	      // System.out.println("list: " + list);
-	      for (LookbookVO l : list) {
-	         System.out.println(l.getLookbook_no());
-	      }
-	      session.close();
-	      return list;
-	   }
+		public static LookbookVO getDelLookbook(int no) {
+			SqlSession session = factory.openSession();
+			LookbookVO l = session.selectOne("lookbook.getDelBoard", no);
+			session.close();
+			return l;
+		}
 
-	   // 룩북 클릭시 룩북의 정보
-	   public static SelectLookbookCommandVO getLookbook(int no) {
+		public static int deleteLookbook(int lookbook_no) {
+			SqlSession session = factory.openSession(true);
+			int re = session.delete("lookbook.deleteLookbook", lookbook_no);
 
-	      SqlSession session = factory.openSession();
-	      LookbookVO lookbook = session.selectOne("lookbook.getLookbook", no);
-	      UsersVO write_u = session.selectOne("users.getUsersbyNo", lookbook.getUsers_no());
-	      List<LookInfoVO> list_info = session.selectList("lookinfo.getLookinfo", no);
-	      List<Lookbook_styleVO> list_style = session.selectList("lookbook_style.getLookStyle", no);
-	      System.out.println("============================");
-	      System.out.println("lookbook의 users 정보: " + write_u);
-	      System.out.println("lookbook 정보: " + lookbook);
-	      System.out.println("list_info 정보: " + list_info);
-	      System.out.println("list_style 정보: " + list_style);
-	      System.out.println("============================");
-	      session.close();
-	      SelectLookbookCommandVO look = new SelectLookbookCommandVO(lookbook, write_u, list_info, list_style);
-	      return look;
+			session.commit();
+			session.close();
+			return re;
+		}
+		
+		public static int getTotalRecordLookbook() {
+			SqlSession session = factory.openSession();
+			int re = session.selectOne("lookbook.totalRecordLookbook");
+			session.close();
+			return re;
+		}
 
-	   }
+		// 룩북 클릭시 룩북의 정보
+		public static SelectLookbookCommandVO getLookbook(int no) {
 
-	   public static int insertLookbook(InsertLookbookCommandVO insertlook) {
-	      int re = 0;
-	      SqlSession session = factory.openSession(true);
-	      int r = session.selectOne("lookinfo.getNext_lookbook_no");
-	      System.out.println("--------------------------");
-	      System.out.println("새로운 lookbook_no:" + r);
-	      LookbookVO lookbook = insertlook.getLookbook();
-	      lookbook.setLookbook_no(r);
-	      System.out.println("loobook객체: " + lookbook);
-	      int re1 = session.insert("lookbook.insert", lookbook); // 1
+			SqlSession session = factory.openSession();
+			LookbookVO lookbook = session.selectOne("lookbook.getLookbook", no);
+			UsersVO write_u = session.selectOne("users.getUsersbyNo", lookbook.getUsers_no());
+			List<LookInfoVO> list_info = session.selectList("lookinfo.getLookinfo", no);
+			List<Lookbook_styleVO> list_style = session.selectList("lookbook_style.getLookStyle", no);
+			System.out.println("============================");
+			System.out.println("lookbook의 users 정보: " + write_u);
+			System.out.println("lookbook 정보: " + lookbook);
+			System.out.println("list_info 정보: " + list_info);
+			System.out.println("list_style 정보: " + list_style);
+			System.out.println("============================");
+			session.close();
+			SelectLookbookCommandVO look = new SelectLookbookCommandVO(lookbook, write_u, list_info, list_style);
+			return look;
 
-	      List<LookInfoVO> list = insertlook.getList_info();
-	      int re2 = 0;
-	      for (LookInfoVO l : list) {
-	         l.setLookbook_no(r);
-	         System.out.println("lookinfo 객체:" + l);
-	         re2 += session.insert("lookinfo.insert", l);
-	      } // list 사이즈
+		}
 
-	      List<Integer> list2 = insertlook.getStyle_no();
-	      int re3 = 0;
-	      for (int i : list2) {
-	         Lookbook_styleVO style = new Lookbook_styleVO(r, i);
-	         System.out.println("lookbook_style 객체:" + style);
-	         re3 += session.insert("lookbook_style.insert", style);
-	      }
-	      if (re1 == 1 && re2 == list.size() && re3 == list2.size()) {
-	         session.commit();
-	      } else {
-	         session.rollback();
-	      }
-	      session.close();
-	      System.out.println("--------------------------");
-	      return re;
-	   }
+		public static int insertLookbook(InsertLookbookCommandVO insertlook) {
+			int re = 0;
+			SqlSession session = factory.openSession(true);
+			int r = session.selectOne("lookinfo.getNext_lookbook_no");
+			System.out.println("--------------------------");
+			System.out.println("새로운 lookbook_no:" + r);
+			LookbookVO lookbook = insertlook.getLookbook();
+			lookbook.setLookbook_no(r);
+			System.out.println("loobook객체: " + lookbook);
+			int re1 = session.insert("lookbook.insert", lookbook); // 1
+
+			List<LookInfoVO> list = insertlook.getList_info();
+			int re2 = 0;
+			for (LookInfoVO l : list) {
+				l.setLookbook_no(r);
+				System.out.println("lookinfo 객체:" + l);
+				re2 += session.insert("lookinfo.insert", l);
+			} // list 사이즈
+
+			List<Integer> list2 = insertlook.getStyle_no();
+			int re3 = 0;
+			for (int i : list2) {
+				Lookbook_styleVO style = new Lookbook_styleVO(r, i);
+				System.out.println("lookbook_style 객체:" + style);
+				re3 += session.insert("lookbook_style.insert", style);
+			}
+			if (re1 == 1 && re2 == list.size() && re3 == list2.size()) {
+				session.commit();
+			} else {
+				session.rollback();
+			}
+			session.close();
+			System.out.println("--------------------------");
+			return re;
+		}
+
+		public static int updateLookbook(InsertLookbookCommandVO updatelook) {
+			int re = 0;
+
+			SqlSession session = factory.openSession(true);
+
+			System.out.println("--------------------------");
+
+			LookbookVO lookbook = updatelook.getLookbook();
+			System.out.println("loobook객체: " + lookbook);
+			int no = lookbook.getLookbook_no();
+			int re1 = session.update("lookbook.update", lookbook); // 1 - 룩북 업데이트
+
+			int re2 = session.delete("lookinfo.delete", no); // 일단 룩북의 모든 정보 삭제
+			List<LookInfoVO> list = updatelook.getList_info();
+			int re3 = 0;
+			for (LookInfoVO l : list) {
+				l.setLookbook_no(no);
+				System.out.println("lookinfo 객체:" + l);
+				re3 += session.insert("lookinfo.insert", l);
+			} // list 사이즈 만큼 lookinfo 추가
+
+			int re4 = session.delete("lookbook_style.delete", no); // 일단 룩북의 모든 스타일 삭제
+			List<Integer> list2 = updatelook.getStyle_no();
+			int re5 = 0;
+			for (int i : list2) {
+				Lookbook_styleVO style = new Lookbook_styleVO(no, i);
+				System.out.println("lookbook_style 객체:" + style);
+				re5 += session.insert("lookbook_style.insert", style);
+			}
+			if (re1 == 1 && re3 == list.size() && re5 == list2.size()) {
+				session.commit();
+			} else {
+				session.rollback();
+			}
+
+			session.close();
+			System.out.println("--------------------------");
+			return re;
+		}
+
+		public static void updateLookbookViews(int no) {
+			SqlSession session = factory.openSession(true);
+			session.update("lookbook.updateViews", no);
+			session.close();
+		}
+
 
 
 	   // board 관련 DBManager
@@ -329,7 +480,7 @@ public class DBManager {
 	      return re;
 	   }
 
-	   public static int getTotalRecord(String searchType, String keyword) {
+	   public static int getTotalRecord(String searchType, String keyword, int board_category_no) {
 
 	      SqlSession session = factory.openSession();
 
@@ -337,6 +488,7 @@ public class DBManager {
 
 	      data.put("searchType", searchType);
 	      data.put("keyword", keyword);
+	      data.put("board_category_no", board_category_no);
 
 	      int n = session.selectOne("board.totalRecord", data);
 	      session.close();
@@ -352,13 +504,7 @@ public class DBManager {
 	      return list;
 	   }
 	   
-	   public static List<UsersVO> listFollw(String users_id) {
-	      System.out.println("매니저에서의 users_id:"+users_id);
-	      SqlSession session = factory.openSession();
-	      List<UsersVO> flist = session.selectList("users.listFollow",users_id);
-	      session.close();
-	      return flist;
-	   }
+	   
 
 	   public static String findID(String users_email) {
 	      System.out.println("DBManager findID동작함" + users_email);
@@ -410,9 +556,23 @@ public class DBManager {
 	   public static int insertComments(CommentsVO c) {
 	      SqlSession session = factory.openSession(true);
 	      int re = session.insert("comments.insertComments", c);
+	      System.out.println("DBManger insertComments 작동함");
 	      session.close();
 	      return re;
 	   }
+	   
+	   public static void plusCommentsCount(int no) {
+		      SqlSession session = factory.openSession(true);
+		      session.update("board.plusCommentsCount", no);
+		      session.close();
+		   }
+	   
+	   public static void minusCommentsCount(int no) {
+		      SqlSession session = factory.openSession(true);
+		      session.update("board.minusCommentsCount", no);
+		      session.close();
+		   }
+
 
 	   public static CommentsVO getComments(int comments_no) {
 	      SqlSession session = factory.openSession();
@@ -428,15 +588,17 @@ public class DBManager {
 	       * System.out.println("map:"+map);
 	       */
 	      int re = session.delete("comments.deleteComments", comments_no);
+	      System.out.println("DBManger deleteComments 작동함");
 	      session.commit();
 	      session.close();
 	      return re;
 	   }
 
-	   public static int updateComments(CommentsVO comments_no) {
+	   public static int updateComments(CommentsVO co) {
 	      SqlSession session = factory.openSession(true);
-	      int re = session.update("comments.updateComments", comments_no);
+	      int re = session.update("comments.updateComments", co);
 	      session.close();
+	      System.out.println("updateComments 작동함");
 	      return re;
 	   }
 	   
@@ -448,119 +610,280 @@ public class DBManager {
 	         return re;
 	      }
 
-
-	   
 	   
 	   //dbmanager/DM
 	   //가연
-	   
-	   //dmList: dm목록
-	   public static List<DMVO> dmList(DMVO d){
-		   SqlSession session = factory.openSession(true);		   
-		   
-		   //list = 보낸사람 Nickname, 보낸사람 profile, 가장 최근메세지
-		   List<DMVO> list = session.selectList("dm.dmList", d);
-		   		
-			for (DMVO dmvo : list) {
-				dmvo.setMy_nickname(d.getFrom_nickname());
-				// count_unread ->unread: 내가 각 방마다 안읽은 DM 수 갖고오기
-				int unread = session.selectOne("dm.notReadDM", dmvo);				
-				// get_your_profile -> profile: 각 방의 상대방 프로필 갖고오기
-				String profile = session.selectOne("dm.getProfile",dmvo);
-				// unread(=안읽은 디엠 수) DMVO에 set
-				dmvo.setUnread(unread);
-				// profile(=상대방 프로필) DMVO에 set
-				dmvo.setYour_profile(profile);
-				//from_nickname=my_nickname => to_nickname=your_nickname
-				if (dmvo.getMy_nickname().equals(dmvo.getFrom_nickname())) {
-					dmvo.setYour_nickname(dmvo.getTo_nickname());
-				} else {
-					dmvo.setYour_nickname(dmvo.getFrom_nickname());
-				}
-			}
-		   session.close();
-		   return list;
+	   public static List<DMVO> listDM(HashMap map) {	//룩북에서 dm select
+		  SqlSession session = factory.openSession();
+		  List<DMVO> dlist = session.selectList("dm.findAll2",map);
+		  session.close();
+		  return dlist;
 	   }
-	   
-	   
-		//roomContentList: room_no마다 dm(dm_content)가져오기
-		public static List<DMVO> getContentList(DMVO d) {
-			SqlSession session = factory.openSession();
 			
-			//콘솔에 출력해보기
-			System.out.println("room 번호: " + d.getRoom_no());
-			System.out.println("from_nickname: " + d.getFrom_nickname());
-			System.out.println("to_nickname: " + d.getTo_nickname());
-						
-			// room_content_list: room별 dm메세지 내용 목록
-			List<DMVO> list = session.selectList("dm.getContentList", d);
-
-			// dm_read_chk: dm 연결하고있는 from_nickname의 메세지를 모두 읽음 처리
-			session.update("dm.readDM", d);
-
-			return list;
-		}
 	   
-	   
-	   
-		// dmList에서 dm보내기
-		public static int insertDM(DMVO d) {
-			SqlSession session = factory.openSession();
+	   public static int insertDM(DMVO d) {	//디엠아이콘, 룩북에서의 insert
+			SqlSession session = factory.openSession(true);
+			String dm_no = session.selectOne("dm.findDM_no",d);
+			d.setDm_no(Integer.toString(Integer.parseInt(dm_no)+1));
+			System.out.println("번호갖고와    "+d.getDm_no());
+			System.out.println("dm_no: "+dm_no);
 			
-			// 메세지리스트에서 보낸건지 프로필에서 보낸건지 구분하기 위함
-			if(d.getRoom_no() == 0) {	// room이 0이라면 프로필에서 보낸거다
-				int oldDM = session.selectOne("dm.findOldDM", d);
-				// 프로필에서 보낸것중 메세지 내역이없어서 첫메세지가 될경우를 구분하기 위함
-				if(oldDM == 0) {	// 메세지 내역이 없어서 0이면 message 테이블의 room 최댓값을 구해서 to에 set 한다.
-					int maxRoomNumber = session.selectOne("dm.findMaxRoomNumber", d);
-					d.setRoom_no(maxRoomNumber+1);
-				}else {		// 메세지 내역이 있다면 해당 room 번호를 가져온다.
-					int room_no = Integer.parseInt(session.selectOne("dm.findRoomNumber", d));
-					d.setRoom_no(room_no);
-				}
-			}	
-			int re = session.insert("dm.insertDM",d);
+			String room_no = session.selectOne("dm.existRoom",d);
+			System.out.println("room_no: "+room_no);
+
+			int re = 0;
+			//방번호 불러와줘
+			if (Integer.parseInt(room_no)!=0) {
+				//기존방 있으면 그 번호 불러와줘
+				String room_old = session.selectOne("dm.findRoom_no",d);
+				d.setRoom_no(Integer.toString(Integer.parseInt(room_old)));
+				System.out.println("d의 값: " + d);
+				
+			}
+			else {
+				String room_new = session.selectOne("dm.findNextRoom_no",d);
+				System.out.println("새로운방 번호: "+room_new);
+				d.setRoom_no(Integer.toString(Integer.parseInt(room_new)));
+				System.out.println("d의 값: " + d);
+			}
+
+			re = session.insert("dm.InsertDM",d);
+			session.close();
 			return re;
 		}
-		
-		
 	   
-	/*	public static UsersVO getUsersByNickname(String users_nickname) {
+	   
+	   //여기서부터 디엠아이콘
+	   //채팅리스트 불러오기
+	  public static List<DMVO> iconListPeople(String users_id){
+		  SqlSession session = factory.openSession();
+		  System.out.println("users_id가 무엇일까: "+users_id);
+		  List<DMVO> list = session.selectList("dm.findRecentDM",users_id);		  
+		  	  
+		  //내가 to_id이더라도 상대방 닉네임과 상대방 프로필 갖고와야해		  
+		  for(DMVO dvo: list) {
+			 if(dvo.getTo_id().equals(users_id)) {
+				 
+				 //내가 to_id면 상대방 아이디 from_id로 저장
+				 String other_id = dvo.getFrom_id();
+				 dvo.setOther_id(other_id);
+				 
+				 String to_id = dvo.getFrom_id();
+				 System.out.println("to_id: "+to_id);
+				 String to_nickname=session.selectOne("dm.getToNickname",to_id);
+				 dvo.setTo_nickname(to_nickname);
+				 String to_profile = session.selectOne("dm.getToProfile",to_id);
+				 dvo.setTo_profile(to_profile);
+				 System.out.println("/////////////////////////////////////");
+				 System.out.println("닉네임이밍미: "+to_nickname);
+				 System.out.println("프로필이이ㅣ이일: "+to_profile);
+				 System.out.println("ddddd의정보오오오: "+dvo);
+				 System.out.println("종료");				 
+			}
+				  
+			else {
+				//내가 from_id라면 상대방 아이디 to_id로 저장
+				String other_id = dvo.getTo_id();
+				dvo.setOther_id(other_id);
+				
+				String to_id = dvo.getTo_id();
+				System.out.println("to_id: "+to_id);
+				String to_nickname=session.selectOne("dm.getFromNickname",to_id);
+				dvo.setTo_nickname(to_nickname);
+				String to_profile = session.selectOne("dm.getFromProfile",to_id);
+				dvo.setTo_profile(to_profile);
+				System.out.println("/////////////////////////////////////");
+				System.out.println("닉네임이밍미: "+to_nickname);
+				System.out.println("프로필이이ㅣ이일: "+to_profile);
+				System.out.println("ddddd의정보오오오: "+dvo);
+				System.out.println("종료");
+			 }		
+		  }			  
+		  return list;
+	  }
+	   
+	   
+	  public static List<DMVO> iconListDM(String room_no) {
+		  SqlSession session = factory.openSession();
+		  System.out.println();
+		  
+		  List<DMVO> dlist = session.selectList("dm.findAll3",room_no);
+		  System.out.println("room_no의 메세지정보: "+room_no);
+		  
+		  System.out.println("ddddd의정보: "+dlist);
+		  session.close();
+		  return dlist;		  
+	  }
+	  
+	  
+	  
+	  
+	  public static int iconInsertDM(DMVO d) {
+			SqlSession session = factory.openSession(true);
+			String dm_no = session.selectOne("dm.findDM_no",d);
+			d.setDm_no(Integer.toString(Integer.parseInt(dm_no)+1));
+			System.out.println("번호갖고와    "+d.getDm_no());
+			System.out.println("dm_no: "+dm_no);
+			
+			String room_no = session.selectOne("dm.existRoom",d);
+			System.out.println("room_no: "+room_no);
+
+			int re = 0;
+			//방번호 불러와줘
+			if (Integer.parseInt(room_no)!=0) {
+				//기존방 있으면 그 번호 불러와줘
+				String room_old = session.selectOne("dm.findRoom_no",d);
+				d.setRoom_no(Integer.toString(Integer.parseInt(room_old)));
+				System.out.println("d의 값: " + d);
+				
+			}
+			else {
+				String room_new = session.selectOne("dm.findNextRoom_no",d);
+				System.out.println("새로운방 번호: "+room_new);
+				d.setRoom_no(Integer.toString(Integer.parseInt(room_new)));
+				System.out.println("d의 값: " + d);
+			}
+
+			re = session.insert("dm.InsertDM",d);
+			session.close();
+			return re;
+		}
+	  
+	  
+	  
+	  
+	  
+	   /* 
+	   //dm아이콘의 사용자 ->수신자 아이디, 닉네임, 사진 정보 리스트갖고오기
+	   public static List<ToDMListVO> iconListDM(String users_id) {
+		   SqlSession session = factory.openSession(true);
+		   
+		   List<ToDMListVO> list= session.selectList("dm.findToAll",users_id);
+		   System.out.println("list의 정보들: "+list);
+		   session.close();
+		   return list;
+  
+	   }
+	   
+	   //닉네임으로 사용자정보불러오기 (from_id, to_id로 하면서 안씀)
+	   public static UsersVO getUsersByNickname(String users_nickname) {
 			SqlSession session = factory.openSession();
 			UsersVO u = session.selectOne("users.getUsersByNickname",users_nickname);
 			session.close();
 			return u;
 		}
 
-		public static int insertDM(DMVO d) {
-			SqlSession session = factory.openSession(true);
-			int re = session.insert("dm.insertDM",d);
-			session.close();
-			return re;
-		}
-		
+		//수신자를 직접 입력했을때 사용 (룩북디엠한 유저만 디엠하기로 하면서 안씀)
 		public static List<DMVO> listPeople(String users_nickname){
 			SqlSession session = factory.openSession();
 			List<DMVO> list = session.selectList("dm.findAll",users_nickname);
 			session.close();
-			return list;
-			
+			return list;			
 		}
-		
+			
+		//룩북디엠리스트 불러올때 
+		//lookbook_no, users_id가 필요해 nickname->map으로 매개변수 변경
 		public static List<DMVO> listDM(String users_nickname){
 			SqlSession session = factory.openSession();
 			List<DMVO> dmList = session.selectList("dm.findAll2",users_nickname);
 			session.close();
-			return dmList;
-			
+			return dmList;				
 		}
 		
+		//dm_no로 불러올일이없었음
 		public static DMVO getDM(int dm_no) {
 			SqlSession session = factory.openSession();
 			DMVO d = session.selectOne("dm.getDM",dm_no);
 			session.close();
 			return d;
 		}
-	*/
+		*/ 				
+//여기까지가 디엠
+	  
+	  
+		public static int insertFollow(FollowVO f) { // 팔로우
+			SqlSession session = factory.openSession(true);
+			//
+			int follow_no = session.selectOne("follow.getNext_follow_no");
+			// 위에서 선언한 변수 follow_no는 무엇을 위한
+			f.setFollow_no(follow_no);
+			int re = session.insert("follow.insertFollow", f);
+			session.close();
+			return re;
+		}
+		/*
+		public void deleteByFollowingIdAndFollowerId(int following_id) { // 언팔로우
+			SqlSession session = factory.openSession();
+			int re = session.delete("follow.insertFollow",following_id);
+			session.close();
+			return re;
+		}
+		*/
+
+
+		public static int isFollow(String follower_id, String following_id) {
+			SqlSession session = factory.openSession();
+			HashMap map = new HashMap();
+			map.put("follower_id", follower_id);
+			map.put("following_id", following_id);
+			int r = session.selectOne("follow.isFollow",map);
+			session.close();
+			return r;
+		}
+
+		public static int deleteFollow(String follower_id, String following_id) {
+			SqlSession session = factory.openSession(true);
+			HashMap map = new HashMap();
+			map.put("follower_id", follower_id);
+			map.put("following_id", following_id);
+			int r = session.delete("follow.deleteFollow",map);
+			session.close();
+			return r;
+		}
+		
+		// 좋아요 수 세기
+		public static int countLooklike(int lookbook_no) {
+			SqlSession session = factory.openSession();
+			int r = session.selectOne("looklike.countLooklike",lookbook_no);
+			session.close();
+			return r;
+		}
+		
+		// 좋아요 누른 사람인지 판별
+		public static int isLooklike(int users_no, int lookbook_no) {
+			SqlSession session = factory.openSession();
+			HashMap map = new HashMap();
+			map.put("users_no", users_no);
+			map.put("lookbook_no", lookbook_no);
+			int r = session.selectOne("looklike.isLooklike",map);
+			session.close();
+			return r;
+		}
+
+		public static int insertLooklike(LooklikeVO looklike) {
+			SqlSession session = factory.openSession(true);
+			//
+			int like_no = session.selectOne("looklike.getNext_like_no");
+			// 위에서 선언한 변수 follow_no는 무엇을 위한
+			looklike.setLike_no(like_no);
+			int re = session.insert("looklike.insertLooklike", looklike);
+			session.close();
+			return re;
+		}
+
+		public static int deleteLooklike(int users_no, int lookbook_no) {
+			SqlSession session = factory.openSession(true);
+			HashMap map = new HashMap();
+			map.put("users_no", users_no);
+			map.put("lookbook_no", lookbook_no);
+			int r = session.delete("looklike.deleteLooklike",map);
+			session.close();
+			return r;
+		}
+
+		
+
+		
+
 
 	}

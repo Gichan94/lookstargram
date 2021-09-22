@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import java.util.HashMap;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.demo.dao.DMDao;
@@ -18,7 +19,7 @@ import com.example.demo.dao.UsersDao;
 import com.example.demo.vo.DMVO;
 
 @Controller
-@RequestMapping("/dm/insertDM.do")
+@RequestMapping("/insertDM.do")
 public class InsertDMController {
 	
 	@Autowired
@@ -29,19 +30,27 @@ public class InsertDMController {
 	public void setDao(DMDao dao) {
 		this.dao = dao;
 	}
+	@RequestMapping(method = RequestMethod.GET)
+	public void form() {
+		
+	}
 
-	
-	@ResponseBody
-	public int insertDM(DMVO d, HttpSession session) {
+	@RequestMapping(method=RequestMethod.POST)
+	public ModelAndView submit(DMVO d, Model model, HttpSession session) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User user = (User)authentication.getPrincipal();		
+		//아래것이 오류나서 바꿈
+		User user = (User)authentication.getPrincipal();
 		String id = user.getUsername();
+		//String id = authentication.getName();
 		session.setAttribute("u", userdao.getUsers(id));
-		System.out.println("insertDM.do 동작함");
-		System.out.println("login한 회원의 아이디: "+id);		
+		ModelAndView mav = new ModelAndView();
+		
 		
 		int re = dao.insertDM(d);
-
-		return re;
+		/*if(re != 1) {
+			mav.addObject("msg", "채팅 등록에 실패하였습니다.");
+			mav.setViewName("error");
+		}*/
+		return mav;
 	}
 }
