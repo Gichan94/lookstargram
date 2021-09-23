@@ -183,7 +183,7 @@
             <b>${look.lookbook_height}cm ${look.lookbook_weight}kg</b>
          </div>
          
-         <img src="/resources/look_img/${look.lookbook_fname}" width="30%">
+         <img src="/resources/look_img/${look.lookbook_fname}" width="300px;">
          <br>
          <br>
          <div class="text-center">

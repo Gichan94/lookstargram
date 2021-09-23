@@ -117,7 +117,7 @@ public class UsersController {
 	@RequestMapping(value = "/logout.do")
 	public String logout(HttpSession session) throws Exception {
 		session.invalidate();
-		return "redirect:/users/login.do";
+		return "redirect:/login.do";
 	}
 	
 	@RequestMapping("/mypage/mypage.do")

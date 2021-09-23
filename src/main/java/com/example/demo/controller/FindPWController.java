@@ -17,7 +17,7 @@ import com.example.demo.dao.UsersDao;
 import com.example.demo.vo.UsersVO;
 
 @Controller
-@RequestMapping("/findPW.do")
+@RequestMapping("/users/findPW.do")
 public class FindPWController {
 	@Autowired
 	private JavaMailSender javaMailSender;
